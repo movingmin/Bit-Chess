@@ -1,122 +1,125 @@
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'game.dart';
+import 'game_screen.dart';
+import 'history_screen.dart';
+import 'storage.dart';
+
+late final Storage storage;
+late final SharedPreferences prefs;
+
+bool get soundOn => prefs.getBool('sound') ?? true;
+bool get vibrationOn => prefs.getBool('vibration') ?? true;
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  storage = Storage(await getApplicationDocumentsDirectory());
+  prefs = await SharedPreferences.getInstance();
+  final resume = await storage.loadCurrent();
+  runApp(BitChessApp(resume: resume));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class BitChessApp extends StatelessWidget {
+  const BitChessApp({super.key, this.resume});
+  final Game? resume;
 
-  // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'Bit-Chess',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF769656), brightness: Brightness.dark),
+        ),
+        home: HomeScreen(resume: resume),
+      );
+}
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key, this.resume});
+  final Game? resume;
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // 앱이 꺼졌다 켜지면 진행 중이던 판으로 바로 복귀.
+    final g = widget.resume;
+    if (g != null) WidgetsBinding.instance.addPostFrameCallback((_) => _open(g));
+  }
+
+  void _open(Game g) =>
+      Navigator.push(context, MaterialPageRoute(builder: (_) => GameScreen(game: g)));
+
+  Future<void> _newGame() async {
+    final tc = await showDialog<TimeControl>(
+      context: context,
+      builder: (c) => SimpleDialog(
+        title: const Text('시간 제한'),
+        children: [
+          for (final t in TimeControl.presets)
+            SimpleDialogOption(onPressed: () => Navigator.pop(c, t), child: Text(t.label)),
+        ],
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+    if (tc != null && mounted) _open(Game(timeControl: tc));
   }
 
   @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: const Text('Bit-Chess')),
+        // 2단계 이후 BLE 대국(방 만들기·찾기)과 분석 보드가 이 목록에 들어온다.
+        body: ListView(
           children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            ListTile(
+              leading: const Icon(Icons.people),
+              title: const Text('혼자 두기 (Pass & Play)'),
+              subtitle: const Text('한 폰에서 번갈아 두기'),
+              onTap: _newGame,
+            ),
+            ListTile(
+              leading: const Icon(Icons.history),
+              title: const Text('지난 대국'),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen())),
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('설정'),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
+      );
+}
+
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: const Text('설정')),
+        body: ListView(
+          children: [
+            SwitchListTile(
+              title: const Text('효과음'),
+              value: soundOn,
+              onChanged: (v) => prefs.setBool('sound', v).then((_) => setState(() {})),
+            ),
+            SwitchListTile(
+              title: const Text('진동'),
+              value: vibrationOn,
+              onChanged: (v) => prefs.setBool('vibration', v).then((_) => setState(() {})),
+            ),
+          ],
+        ),
+      );
 }

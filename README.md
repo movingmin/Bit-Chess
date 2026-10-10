@@ -36,3 +36,9 @@ git config core.hooksPath scripts/hooks
 ## 라이선스
 
 [GPL-3.0](LICENSE). 나중에 Stockfish(GPLv3)를 넣을 수 있도록 GPL-3.0을 씁니다.
+
+## 사용한 오픈소스
+
+- 체스 규칙·PGN: [dartchess](https://pub.dev/packages/dartchess) (lichess.org, GPL-3.0)
+- 보드 UI: [chessground](https://pub.dev/packages/chessground) (lichess.org, GPL-3.0)
+- 기물 이미지: chessground에 들어 있는 cburnett 세트 (Colin M.L. Burnett). 개별 라이선스 문구는 확인 필요
