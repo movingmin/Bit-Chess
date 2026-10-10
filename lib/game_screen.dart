@@ -94,7 +94,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     if (san == null) return;
     _turnWatch.reset();
     _board.updatePosition(_data());
-    _feedback(strong: san.contains('x') || g.pos.isCheck || g.isOver);
+    if (!g.isOver) _feedback(g.pos.isCheck ? 'check' : (san.contains('x') ? 'capture' : 'move'));
     if (g.isOver) {
       _finish();
     } else {
@@ -103,17 +103,19 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     setState(() {});
   }
 
-  // ponytail: 시스템 클릭음 하나로 이동·잡기·체크·종료를 낸다. 구분음은 라이선스 확인된 음원을 넣을 때.
-  void _feedback({bool strong = false}) {
-    if (soundOn) SystemSound.play(SystemSoundType.click);
-    if (vibrationOn) strong ? HapticFeedback.heavyImpact() : HapticFeedback.selectionClick();
+  static const _fx = MethodChannel('bitchess/feedback');
+
+  /// kind: move·capture·check·end. 네이티브(MainActivity.kt)가 톤·진동을 낸다.
+  void _feedback(String kind) {
+    if (soundOn) _fx.invokeMethod('tone', kind);
+    if (vibrationOn) _fx.invokeMethod('vibrate', kind == 'move' ? 30 : (kind == 'end' ? 300 : 80));
   }
 
   Future<void> _finish() async {
     _ticker?.cancel();
     _turnWatch.stop();
     _board.updatePosition(_data());
-    _feedback(strong: true);
+    _feedback('end');
     await storage.archive(g);
     if (!mounted) return;
     setState(() {});
