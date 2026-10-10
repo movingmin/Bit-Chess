@@ -18,24 +18,20 @@ class TimeControl {
     TimeControl('15+10', 900000, 10000),
   ];
 
-  static TimeControl fromPgn(String s) => presets.firstWhere((t) => t.pgn == s,
-      orElse: () {
-        final p = s.split('+');
-        return p.length == 2
-            ? TimeControl(s, int.parse(p[0]) * 1000, int.parse(p[1]) * 1000)
-            : presets.first;
-      });
+  static TimeControl fromPgn(String s) => presets.firstWhere(
+    (t) => t.pgn == s,
+    orElse: () {
+      final p = s.split('+');
+      return p.length == 2 ? TimeControl(s, int.parse(p[0]) * 1000, int.parse(p[1]) * 1000) : presets.first;
+    },
+  );
 }
 
 /// 한 판의 상태. UI·저장과 무관한 순수 로직(테스트 대상).
 class Game {
-  Game({
-    required this.timeControl,
-    this.white = '백',
-    this.black = '흑',
-    DateTime? date,
-  })  : date = date ?? DateTime.now(),
-        clockMs = [timeControl.initialMs ?? 0, timeControl.initialMs ?? 0];
+  Game({required this.timeControl, this.white = '백', this.black = '흑', DateTime? date})
+    : date = date ?? DateTime.now(),
+      clockMs = [timeControl.initialMs ?? 0, timeControl.initialMs ?? 0];
 
   final TimeControl timeControl;
   final String white, black;
@@ -90,8 +86,7 @@ class Game {
     return san;
   }
 
-  void resign(Side loser) =>
-      _end(loser == Side.white ? '0-1' : '1-0', '${loser == Side.white ? '백' : '흑'} 기권');
+  void resign(Side loser) => _end(loser == Side.white ? '0-1' : '1-0', '${loser == Side.white ? '백' : '흑'} 기권');
 
   void agreeDraw() => _end('1/2-1/2', '합의 무승부');
 
@@ -111,8 +106,7 @@ class Game {
     reason = why;
   }
 
-  String get _date =>
-      '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
+  String get _date => '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
 
   String toPgn() {
     final root = PgnNode<PgnNodeData>();
@@ -141,15 +135,15 @@ class Game {
 
   /// 진행 중 판 복구용.
   Map<String, Object?> toJson() => {
-        'tc': timeControl.pgn,
-        'white': white,
-        'black': black,
-        'date': date.toIso8601String(),
-        'sans': sans,
-        'clock': clockMs,
-        'result': result,
-        'reason': reason,
-      };
+    'tc': timeControl.pgn,
+    'white': white,
+    'black': black,
+    'date': date.toIso8601String(),
+    'sans': sans,
+    'clock': clockMs,
+    'result': result,
+    'reason': reason,
+  };
 
   static Game fromJson(Map<String, Object?> j) {
     final g = Game(

@@ -13,31 +13,37 @@ class HistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('지난 대국')),
-        body: FutureBuilder<List<File>>(
-          future: storage.listGames(),
-          builder: (context, snap) {
-            final files = snap.data;
-            if (files == null) return const Center(child: CircularProgressIndicator());
-            if (files.isEmpty) return const Center(child: Text('저장된 대국이 없습니다'));
-            return ListView(
-              children: [
-                for (final f in files)
-                  Builder(builder: (context) {
-                    final pgn = f.readAsStringSync();
-                    final h = PgnGame.parsePgn(pgn).headers;
-                    return ListTile(
-                      title: Text('${h['White']} vs ${h['Black']}  ${h['Result']}'),
-                      subtitle: Text('${h['Date']} · ${h['TimeControl']} · ${h['Termination'] ?? ''}'),
-                      onTap: () => Navigator.push(
-                          context, MaterialPageRoute(builder: (_) => ReplayScreen(file: f, pgn: pgn))),
-                    );
-                  }),
-              ],
-            );
-          },
-        ),
-      );
+    appBar: AppBar(title: const Text('지난 대국')),
+    body: FutureBuilder<List<File>>(
+      future: storage.listGames(),
+      builder: (context, snap) {
+        final files = snap.data;
+        if (files == null) return const Center(child: CircularProgressIndicator());
+        if (files.isEmpty) return const Center(child: Text('저장된 대국이 없습니다'));
+        return ListView(
+          children: [
+            for (final f in files)
+              Builder(
+                builder: (context) {
+                  final pgn = f.readAsStringSync();
+                  final h = PgnGame.parsePgn(pgn).headers;
+                  return ListTile(
+                    title: Text('${h['White']} vs ${h['Black']}  ${h['Result']}'),
+                    subtitle: Text('${h['Date']} · ${h['TimeControl']} · ${h['Termination'] ?? ''}'),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ReplayScreen(file: f, pgn: pgn),
+                      ),
+                    ),
+                  );
+                },
+              ),
+          ],
+        );
+      },
+    ),
+  );
 }
 
 class ReplayScreen extends StatefulWidget {
@@ -85,31 +91,31 @@ class _ReplayScreenState extends State<ReplayScreen> {
           ),
         ],
       ),
-      body: LayoutBuilder(
-        builder: (context, c) => Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: Text(ply == 0 ? '시작 위치' : '${(ply + 1) ~/ 2}${ply.isOdd ? '.' : '...'} ${sans[ply - 1]}'),
-            ),
-            StaticChessboard(
-              size: min(c.maxWidth, c.maxHeight - 140),
-              orientation: Side.white,
-              fen: pos.fen,
-              lastMove: ply == 0 ? null : moves[ply - 1],
-            ),
-            const Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton(icon: const Icon(Icons.first_page), onPressed: () => _go(0)),
-                IconButton(icon: const Icon(Icons.chevron_left), onPressed: () => _go(ply - 1)),
-                IconButton(icon: const Icon(Icons.chevron_right), onPressed: () => _go(ply + 1)),
-                IconButton(icon: const Icon(Icons.last_page), onPressed: () => _go(moves.length)),
-              ],
-            ),
-            const SizedBox(height: 12),
-          ],
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, c) => Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Text(ply == 0 ? '시작 위치' : '${(ply + 1) ~/ 2}${ply.isOdd ? '.' : '...'} ${sans[ply - 1]}'),
+              ),
+              StaticChessboard(
+                size: min(c.maxWidth, c.maxHeight - 140),
+                orientation: Side.white,
+                fen: pos.fen,
+                lastMove: ply == 0 ? null : moves[ply - 1],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton(icon: const Icon(Icons.first_page), onPressed: () => _go(0)),
+                  IconButton(icon: const Icon(Icons.chevron_left), onPressed: () => _go(ply - 1)),
+                  IconButton(icon: const Icon(Icons.chevron_right), onPressed: () => _go(ply + 1)),
+                  IconButton(icon: const Icon(Icons.last_page), onPressed: () => _go(moves.length)),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

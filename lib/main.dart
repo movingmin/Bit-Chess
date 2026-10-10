@@ -27,12 +27,12 @@ class BitChessApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-        title: 'Bit-Chess',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF769656), brightness: Brightness.dark),
-        ),
-        home: HomeScreen(resume: resume),
-      );
+    title: 'Bit-Chess',
+    theme: ThemeData(
+      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF769656), brightness: Brightness.dark),
+    ),
+    home: HomeScreen(resume: resume),
+  );
 }
 
 class HomeScreen extends StatefulWidget {
@@ -52,8 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (g != null) WidgetsBinding.instance.addPostFrameCallback((_) => _open(g));
   }
 
-  void _open(Game g) =>
-      Navigator.push(context, MaterialPageRoute(builder: (_) => GameScreen(game: g)));
+  void _open(Game g) => Navigator.push(context, MaterialPageRoute(builder: (_) => GameScreen(game: g)));
 
   Future<void> _newGame() async {
     final tc = await showDialog<TimeControl>(
@@ -71,29 +70,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Bit-Chess')),
-        // 2단계 이후 BLE 대국(방 만들기·찾기)과 분석 보드가 이 목록에 들어온다.
-        body: ListView(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.people),
-              title: const Text('혼자 두기 (Pass & Play)'),
-              subtitle: const Text('한 폰에서 번갈아 두기'),
-              onTap: _newGame,
-            ),
-            ListTile(
-              leading: const Icon(Icons.history),
-              title: const Text('지난 대국'),
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen())),
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('설정'),
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
-            ),
-          ],
+    appBar: AppBar(title: const Text('Bit-Chess')),
+    // 2단계 이후 BLE 대국(방 만들기·찾기)과 분석 보드가 이 목록에 들어온다.
+    body: ListView(
+      children: [
+        ListTile(
+          leading: const Icon(Icons.people),
+          title: const Text('혼자 두기 (Pass & Play)'),
+          subtitle: const Text('한 폰에서 번갈아 두기'),
+          onTap: _newGame,
         ),
-      );
+        ListTile(
+          leading: const Icon(Icons.history),
+          title: const Text('지난 대국'),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen())),
+        ),
+        ListTile(
+          leading: const Icon(Icons.settings),
+          title: const Text('설정'),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
+        ),
+      ],
+    ),
+  );
 }
 
 class SettingsScreen extends StatefulWidget {
@@ -106,20 +105,20 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('설정')),
-        body: ListView(
-          children: [
-            SwitchListTile(
-              title: const Text('효과음'),
-              value: soundOn,
-              onChanged: (v) => prefs.setBool('sound', v).then((_) => setState(() {})),
-            ),
-            SwitchListTile(
-              title: const Text('진동'),
-              value: vibrationOn,
-              onChanged: (v) => prefs.setBool('vibration', v).then((_) => setState(() {})),
-            ),
-          ],
+    appBar: AppBar(title: const Text('설정')),
+    body: ListView(
+      children: [
+        SwitchListTile(
+          title: const Text('효과음'),
+          value: soundOn,
+          onChanged: (v) => prefs.setBool('sound', v).then((_) => setState(() {})),
         ),
-      );
+        SwitchListTile(
+          title: const Text('진동'),
+          value: vibrationOn,
+          onChanged: (v) => prefs.setBool('vibration', v).then((_) => setState(() {})),
+        ),
+      ],
+    ),
+  );
 }

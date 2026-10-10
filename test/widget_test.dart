@@ -50,6 +50,14 @@ void main() {
     expect(over.isOver, isTrue);
   });
 
+  test('보드가 보내는 킹 2칸 캐슬링(e1→g1, e8→c8)', () {
+    final g = playAll('e4 d5 Nf3 Qd6 Bc4 Be6 d3 Nc6');
+    expect(g.play(NormalMove(from: Square.e1, to: Square.g1)), 'O-O');
+    expect(g.pos.board.roleAt(Square.f1), Role.rook);
+    expect(g.play(NormalMove(from: Square.e8, to: Square.c8)), 'O-O-O');
+    expect(g.pos.board.roleAt(Square.d8), Role.rook);
+  });
+
   test('특수 수 PGN: 앙파상·캐슬링·프로모션', () {
     final ep = playAll('e4 a6 e5 d5 exd6');
     expect(ep.pos.board.pieceAt(Square.d5), isNull);

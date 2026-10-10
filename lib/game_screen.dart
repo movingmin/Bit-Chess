@@ -81,23 +81,20 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   }
 
   GameData _data() => GameData(
-        fen: g.pos.fen,
-        lastMove: g.lastMove,
-        playerSide: g.isOver
-            ? PlayerSide.none
-            : (g.pos.turn == Side.white ? PlayerSide.white : PlayerSide.black),
-        sideToMove: g.pos.turn,
-        validMoves: makeLegalMoves(g.pos),
-        kingSquareInCheck: g.pos.isCheck ? g.pos.board.kingOf(g.pos.turn) : null,
-      );
+    fen: g.pos.fen,
+    lastMove: g.lastMove,
+    playerSide: g.isOver ? PlayerSide.none : (g.pos.turn == Side.white ? PlayerSide.white : PlayerSide.black),
+    sideToMove: g.pos.turn,
+    validMoves: makeLegalMoves(g.pos),
+    kingSquareInCheck: g.pos.isCheck ? g.pos.board.kingOf(g.pos.turn) : null,
+  );
 
   void _onMove(Move move, {bool? viaDragAndDrop}) {
-    final capture = move is NormalMove && g.pos.board.pieceAt(move.to) != null;
     final san = g.play(move, spentMs: _turnWatch.elapsedMilliseconds);
     if (san == null) return;
     _turnWatch.reset();
     _board.updatePosition(_data());
-    _feedback(strong: capture || g.pos.isCheck || g.isOver);
+    _feedback(strong: san.contains('x') || g.pos.isCheck || g.isOver);
     if (g.isOver) {
       _finish();
     } else {
@@ -131,11 +128,11 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   }
 
   String get _resultText => switch (g.result) {
-        '1-0' => '백 승 (1-0)',
-        '0-1' => '흑 승 (0-1)',
-        '1/2-1/2' => '무승부 (½-½)',
-        _ => '진행 중',
-      };
+    '1-0' => '백 승 (1-0)',
+    '0-1' => '흑 승 (0-1)',
+    '1/2-1/2' => '무승부 (½-½)',
+    _ => '진행 중',
+  };
 
   Future<bool> _confirm(String title) async =>
       await showDialog<bool>(
@@ -192,8 +189,10 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             color: active ? Colors.white : Colors.black26,
-            child: Text(text,
-                style: TextStyle(fontSize: 22, fontFamily: 'monospace', color: active ? Colors.black : Colors.white70)),
+            child: Text(
+              text,
+              style: TextStyle(fontSize: 22, fontFamily: 'monospace', color: active ? Colors.black : Colors.white70),
+            ),
           ),
         ],
       ),
@@ -216,47 +215,47 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) => PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, _) => didPop ? null : _leave(),
-        child: Scaffold(
-          appBar: AppBar(title: Text(g.isOver ? _resultText : 'Pass & Play')),
-          body: LayoutBuilder(
-            builder: (context, c) => Column(
-              children: [
-                _moves(),
-                _clock(_orientation.opposite),
-                Chessboard(
-                  controller: _board,
-                  size: min(c.maxWidth, c.maxHeight - 220),
-                  orientation: _orientation,
-                  onMove: _onMove,
-                ),
-                _clock(_orientation),
-                const Spacer(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    TextButton.icon(
-                      icon: const Icon(Icons.swap_vert),
-                      label: const Text('뒤집기'),
-                      onPressed: () => setState(() => _orientation = _orientation.opposite),
-                    ),
-                    TextButton.icon(
-                      icon: const Icon(Icons.handshake),
-                      label: const Text('무승부'),
-                      onPressed: g.isOver ? null : _draw,
-                    ),
-                    TextButton.icon(
-                      icon: const Icon(Icons.flag),
-                      label: const Text('기권'),
-                      onPressed: g.isOver ? null : _resign,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-              ],
-            ),
+    canPop: false,
+    onPopInvokedWithResult: (didPop, _) => didPop ? null : _leave(),
+    child: Scaffold(
+      appBar: AppBar(title: Text(g.isOver ? _resultText : 'Pass & Play')),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, c) => Column(
+            children: [
+              _moves(),
+              _clock(_orientation.opposite),
+              Chessboard(
+                controller: _board,
+                size: min(c.maxWidth, c.maxHeight - 220),
+                orientation: _orientation,
+                onMove: _onMove,
+              ),
+              _clock(_orientation),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  TextButton.icon(
+                    icon: const Icon(Icons.swap_vert),
+                    label: const Text('뒤집기'),
+                    onPressed: () => setState(() => _orientation = _orientation.opposite),
+                  ),
+                  TextButton.icon(
+                    icon: const Icon(Icons.handshake),
+                    label: const Text('무승부'),
+                    onPressed: g.isOver ? null : _draw,
+                  ),
+                  TextButton.icon(
+                    icon: const Icon(Icons.flag),
+                    label: const Text('기권'),
+                    onPressed: g.isOver ? null : _resign,
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    ),
+  );
 }
