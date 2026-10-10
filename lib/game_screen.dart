@@ -215,7 +215,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       height: 22,
       child: Row(
         children: [
-          for (final r in capturedBy(g.pos, s))
+          for (final r in sortedByValue(g.captured[s]!))
             Image(
               image: PieceSet.cburnettAssets[Piece(color: s.opposite, role: r).kind]!,
               width: 18,

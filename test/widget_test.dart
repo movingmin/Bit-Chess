@@ -88,14 +88,16 @@ void main() {
   test('잡은 기물·점수 차', () {
     // 1.e4 d5 2.exd5 Qxd5 3.Nc3 Qxg2?? 4.Bxg2 : 백이 폰1·퀸 잡음, 흑이 폰2 잡음
     final g = playAll('e4 d5 exd5 Qxd5 Nc3 Qxg2 Bxg2');
-    expect(capturedBy(g.pos, Side.white), [Role.pawn, Role.queen]);
-    expect(capturedBy(g.pos, Side.black), [Role.pawn, Role.pawn]);
+    expect(sortedByValue(g.captured[Side.white]!), [Role.pawn, Role.queen]);
+    expect(g.captured[Side.black], [Role.pawn, Role.pawn]);
     expect(materialDiff(g.pos), 8);
     // 프로모션: 폰이 퀸이 돼도 '잡힌 퀸'이 음수가 되지 않는다
     final p = playAll('h4 g5 hxg5 h6 gxh6 Nf6 h7 Rg8 hxg8=Q');
-    expect(capturedBy(p.pos, Side.white), [Role.pawn, Role.pawn, Role.rook]);
-    expect(capturedBy(p.pos, Side.black), [Role.pawn]);
+    expect(p.captured[Side.white], [Role.pawn, Role.pawn, Role.rook]);
+    expect(p.captured[Side.black], isEmpty); // 프로모션은 잡힌 게 아님
+    expect(playAll("e4 a6 e5 d5 exd6").captured[Side.white], [Role.pawn]); // 앙파상
     expect(materialDiff(p.pos), 2 + 5 + 9 - 1);
+    expect(Game.fromJson(p.toJson()).captured[Side.white], p.captured[Side.white]); // 복구 후에도 같음
   });
 
   test('저장·복구', () async {

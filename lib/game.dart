@@ -41,6 +41,9 @@ class Game {
   final List<String> sans = [];
   Move? lastMove;
 
+  /// 각 쪽이 잡은 상대 기물(잡은 순서). 복구 때는 수를 다시 두며 다시 쌓인다.
+  final Map<Side, List<Role>> captured = {Side.white: [], Side.black: []};
+
   /// [백, 흑] 남은 시간(ms).
   final List<int> clockMs;
 
@@ -66,6 +69,12 @@ class Game {
       clockMs[_idx(mover)] += timeControl.incrementMs - spentMs;
     }
     final (next, san) = pos.makeSan(move);
+    // 상대 기물 중 줄어든 종류 = 잡힌 기물(앙파상 포함, 프로모션은 내 기물이라 무관).
+    for (final r in Role.values) {
+      if (next.board.piecesOf(mover.opposite, r).size < pos.board.piecesOf(mover.opposite, r).size) {
+        captured[mover]!.add(r);
+      }
+    }
     pos = next;
     sans.add(san);
     lastMove = move;
@@ -168,14 +177,9 @@ class Game {
 
 /// 기물 점수(폰1·나이트3·비숍3·룩5·퀸9).
 const pieceValue = {Role.pawn: 1, Role.knight: 3, Role.bishop: 3, Role.rook: 5, Role.queen: 9, Role.king: 0};
-const _startCount = {Role.pawn: 8, Role.knight: 2, Role.bishop: 2, Role.rook: 2, Role.queen: 1};
 
-/// [by]가 잡은 상대 기물(낮은 점수부터). 판 위 기물 수로 센다(Chess.com 방식).
-/// 프로모션으로 기물이 늘면 그만큼 잡힌 것으로 보지 않는다.
-List<Role> capturedBy(Position pos, Side by) => [
-  for (final r in _startCount.keys)
-    for (var i = pos.board.piecesOf(by.opposite, r).size; i < _startCount[r]!; i++) r,
-];
+/// 낮은 점수부터 정렬.
+List<Role> sortedByValue(List<Role> roles) => [...roles]..sort((a, b) => pieceValue[a]!.compareTo(pieceValue[b]!));
 
 /// 백 기준 점수 차(백이 앞서면 +).
 int materialDiff(Position pos) {
