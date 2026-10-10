@@ -41,4 +41,5 @@ git config core.hooksPath scripts/hooks
 
 - 체스 규칙·PGN: [dartchess](https://pub.dev/packages/dartchess) (lichess.org, GPL-3.0)
 - 보드 UI: [chessground](https://pub.dev/packages/chessground) (lichess.org, GPL-3.0)
-- 기물 이미지: chessground에 들어 있는 cburnett 세트 (Colin M.L. Burnett). 개별 라이선스 문구는 확인 필요
+- 기물 이미지: chessground에 들어 있는 cburnett 세트 (Colin M.L. Burnett, GPLv2+ — lichess COPYING.md 기준)
+- 효과음: `scripts/gen_sounds.py`로 직접 합성한 소리(외부 음원 없음, 저장소 라이선스와 같음)

@@ -85,6 +85,19 @@ void main() {
     expect(r.result, '1-0');
   });
 
+  test('잡은 기물·점수 차', () {
+    // 1.e4 d5 2.exd5 Qxd5 3.Nc3 Qxg2?? 4.Bxg2 : 백이 폰1·퀸 잡음, 흑이 폰2 잡음
+    final g = playAll('e4 d5 exd5 Qxd5 Nc3 Qxg2 Bxg2');
+    expect(capturedBy(g.pos, Side.white), [Role.pawn, Role.queen]);
+    expect(capturedBy(g.pos, Side.black), [Role.pawn, Role.pawn]);
+    expect(materialDiff(g.pos), 8);
+    // 프로모션: 폰이 퀸이 돼도 '잡힌 퀸'이 음수가 되지 않는다
+    final p = playAll('h4 g5 hxg5 h6 gxh6 Nf6 h7 Rg8 hxg8=Q');
+    expect(capturedBy(p.pos, Side.white), [Role.pawn, Role.pawn, Role.rook]);
+    expect(capturedBy(p.pos, Side.black), [Role.pawn]);
+    expect(materialDiff(p.pos), 2 + 5 + 9 - 1);
+  });
+
   test('저장·복구', () async {
     final dir = await Directory.systemTemp.createTemp('bitchess');
     final s = Storage(dir);

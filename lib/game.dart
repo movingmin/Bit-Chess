@@ -165,3 +165,20 @@ class Game {
     return g;
   }
 }
+
+/// 기물 점수(폰1·나이트3·비숍3·룩5·퀸9).
+const pieceValue = {Role.pawn: 1, Role.knight: 3, Role.bishop: 3, Role.rook: 5, Role.queen: 9, Role.king: 0};
+const _startCount = {Role.pawn: 8, Role.knight: 2, Role.bishop: 2, Role.rook: 2, Role.queen: 1};
+
+/// [by]가 잡은 상대 기물(낮은 점수부터). 판 위 기물 수로 센다(Chess.com 방식).
+/// 프로모션으로 기물이 늘면 그만큼 잡힌 것으로 보지 않는다.
+List<Role> capturedBy(Position pos, Side by) => [
+  for (final r in _startCount.keys)
+    for (var i = pos.board.piecesOf(by.opposite, r).size; i < _startCount[r]!; i++) r,
+];
+
+/// 백 기준 점수 차(백이 앞서면 +).
+int materialDiff(Position pos) {
+  int sum(Side s) => Role.values.fold(0, (a, r) => a + pos.board.piecesOf(s, r).size * pieceValue[r]!);
+  return sum(Side.white) - sum(Side.black);
+}

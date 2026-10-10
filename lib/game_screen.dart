@@ -186,8 +186,15 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         children: [
-          Text(s == Side.white ? g.white : g.black, style: const TextStyle(fontSize: 18)),
-          const Spacer(),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(s == Side.white ? g.white : g.black, style: const TextStyle(fontSize: 18)),
+                _captured(s),
+              ],
+            ),
+          ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             color: active ? Colors.white : Colors.black26,
@@ -196,6 +203,25 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
               style: TextStyle(fontSize: 22, fontFamily: 'monospace', color: active ? Colors.black : Colors.white70),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  /// [s]가 잡은 상대 기물 그림 + 앞선 점수(+N).
+  Widget _captured(Side s) {
+    final diff = materialDiff(g.pos) * (s == Side.white ? 1 : -1);
+    return SizedBox(
+      height: 22,
+      child: Row(
+        children: [
+          for (final r in capturedBy(g.pos, s))
+            Image(
+              image: PieceSet.cburnettAssets[Piece(color: s.opposite, role: r).kind]!,
+              width: 18,
+              height: 18,
+            ),
+          if (diff > 0) Text(' +$diff', style: const TextStyle(fontSize: 14, color: Colors.white70)),
         ],
       ),
     );
@@ -229,7 +255,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
               _clock(_orientation.opposite),
               Chessboard(
                 controller: _board,
-                size: min(c.maxWidth, c.maxHeight - 220),
+                size: min(c.maxWidth, c.maxHeight - 270),
                 orientation: _orientation,
                 onMove: _onMove,
               ),
