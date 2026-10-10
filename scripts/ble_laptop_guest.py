@@ -88,8 +88,8 @@ async def main():
         ack = await expect("TEST_ACK")
         print(f"2KB: 보낸 해시 {h}, 폰 해시 {ack['hash']} → {'일치' if ack['hash'] == h else '불일치'}")
         print(f"요약: ping {ok}/5")
-        print("10초 동안 폰에서 보내는 PING/2KB에 응답합니다…")
-        end = time.monotonic() + 10
+        print("60초 동안 폰에서 보내는 PING/2KB에 응답합니다…", flush=True)
+        end = time.monotonic() + 60
         while time.monotonic() < end:
             try:
                 m = await asyncio.wait_for(inbox.get(), end - time.monotonic())
