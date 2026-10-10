@@ -107,8 +107,8 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
 
   /// kind: move·capture·check·end. 네이티브(MainActivity.kt)가 톤·진동을 낸다.
   void _feedback(String kind) {
-    if (soundOn) _fx.invokeMethod('tone', kind);
-    if (vibrationOn) _fx.invokeMethod('vibrate', kind == 'move' ? 30 : (kind == 'end' ? 300 : 80));
+    if (soundOn) _fx.invokeMethod('tone', kind).ignore();
+    if (vibrationOn) _fx.invokeMethod('vibrate', kind == 'move' ? 30 : (kind == 'end' ? 300 : 80)).ignore();
   }
 
   Future<void> _finish() async {
