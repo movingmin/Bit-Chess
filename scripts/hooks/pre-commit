@@ -1,0 +1,10 @@
+#!/bin/sh
+# gitleaks pre-commit hook. 설치: git config core.hooksPath scripts/hooks
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks가 없습니다. 설치 후 다시 커밋하세요 (README 참고)." >&2
+  exit 1
+fi
+gitleaks git --staged --redact --no-banner -v || {
+  echo "pre-commit: gitleaks가 비밀로 보이는 내용을 찾아 커밋을 막았습니다." >&2
+  exit 1
+}
