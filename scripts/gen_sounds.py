@@ -23,9 +23,9 @@ def knock(pitch=1.0, sec=0.18, bright=1.0):
     x = t(sec)
     body = sum(
         a * np.sin(2 * np.pi * f * pitch * x) * np.exp(-x * d)
-        for f, a, d in [(420, 1.0, 38), (1180, 0.55, 60), (2350, 0.3 * bright, 90)]
+        for f, a, d in [(260, 1.0, 45), (720, 0.45, 80), (1500, 0.12 * bright, 140)]
     )
-    click = rng.standard_normal(x.size) * np.exp(-x * 900) * 0.6 * bright
+    click = np.convolve(rng.standard_normal(x.size), np.ones(12) / 12, "same") * np.exp(-x * 700) * 0.5 * bright  # 고음을 깎은 둔한 타격
     return body + click
 
 
