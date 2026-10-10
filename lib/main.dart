@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'ble/ble_debug_screen.dart';
 import 'game.dart';
 import 'game_screen.dart';
 import 'history_screen.dart';
@@ -90,6 +92,12 @@ class _HomeScreenState extends State<HomeScreen> {
           title: const Text('설정'),
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
         ),
+        if (kDebugMode)
+          ListTile(
+            leading: const Icon(Icons.bluetooth),
+            title: const Text('BLE 테스트 (디버그)'),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BleDebugScreen())),
+          ),
       ],
     ),
   );

@@ -81,9 +81,18 @@ class MainActivity : FlutterActivity() {
                 result.error("feedback", e.message, null)
             }
         }
+        ble = BleTransport(this, flutterEngine.dartExecutor.binaryMessenger)
+    }
+
+    private var ble: BleTransport? = null
+
+    override fun onRequestPermissionsResult(code: Int, perms: Array<out String>, grants: IntArray) {
+        super.onRequestPermissionsResult(code, perms, grants)
+        ble?.onPermissionResult(code, grants)
     }
 
     override fun onDestroy() {
+        ble?.dispose()
         if (poolLazy.isInitialized()) poolLazy.value.release()
         super.onDestroy()
     }
