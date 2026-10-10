@@ -72,6 +72,8 @@ build/
 *.pgn
 logcat*.txt
 screenshots/
+Screenshot_*
+!test/**/*.pgn
 
 # Windows
 Thumbs.db
