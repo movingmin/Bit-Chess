@@ -58,6 +58,12 @@ abstract class Transport {
   Stream<TransportEvent> get events;
   Future<bool> bluetoothOn();
   Future<bool> ensurePermissions();
+
+  /// 권한 창 없이 현재 상태만 확인.
+  Future<bool> hasPermissions();
+
+  /// 앱 설정 화면(권한)을 연다. 두 번 거부하면 Android가 권한 창을 더 띄우지 않으므로 필요하다.
+  Future<void> openAppSettings();
   Future<void> startHost(String roomName);
   Future<void> startScan();
   Future<void> stopScan();
@@ -116,6 +122,12 @@ class AndroidTransport implements Transport {
 
   @override
   Future<bool> ensurePermissions() async => await _m.invokeMethod<bool>('ensurePermissions') ?? false;
+
+  @override
+  Future<bool> hasPermissions() async => await _m.invokeMethod<bool>('hasPermissions') ?? false;
+
+  @override
+  Future<void> openAppSettings() => _m.invokeMethod('openAppSettings');
 
   @override
   Future<void> startHost(String roomName) => _m.invokeMethod('startHost', {

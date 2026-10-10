@@ -106,6 +106,13 @@ class BleTransport(private val activity: Activity, messenger: BinaryMessenger) :
             when (call.method) {
                 "bluetoothOn" -> result.success(adapter?.isEnabled == true)
                 "ensurePermissions" -> ensurePermissions(result)
+                "hasPermissions" -> result.success(needed().all { activity.checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED })
+                "openAppSettings" -> {
+                    activity.startActivity(
+                        Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, android.net.Uri.fromParts("package", activity.packageName, null)),
+                    )
+                    result.success(null)
+                }
                 "startHost" -> { startHost(call.argument<ByteArray>("roomId")!!, call.argument<String>("name")!!); result.success(null) }
                 "startScan" -> { startScan(); result.success(null) }
                 "stopScan" -> { stopScan(); result.success(null) }

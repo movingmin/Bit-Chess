@@ -23,7 +23,7 @@ class _Log {
   final Color color;
 }
 
-class _BleDebugScreenState extends State<BleDebugScreen> {
+class _BleDebugScreenState extends State<BleDebugScreen> with WidgetsBindingObserver {
   final Transport t = transport;
   final _clock = Stopwatch()..start(); // 단조 시계(왕복 시간용)
   final _rooms = <String, Room>{};
@@ -42,27 +42,41 @@ class _BleDebugScreenState extends State<BleDebugScreen> {
   void initState() {
     super.initState();
     _sub = t.events.listen(_onEvent);
+    WidgetsBinding.instance.addObserver(this);
     _check();
+  }
+
+  // 설정 화면에서 돌아오면 다시 확인(권한 창은 띄우지 않음 — 창 자체가 화면 전환을 일으켜 반복될 수 있음).
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState s) {
+    if (s == AppLifecycleState.resumed) _check(ask: false);
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _sub.cancel();
     t.stop();
     super.dispose();
   }
 
-  Future<bool> _check() async {
+  Future<bool> _check({bool ask = true}) async {
     String? b;
-    if (!await t.ensurePermissions()) {
+    if (!await (ask ? t.ensurePermissions() : t.hasPermissions())) {
       b =
           '근처 기기(블루투스) 권한이 필요합니다.\n'
-          '[권한 다시 요청]을 누르거나, 설정 → 애플리케이션 → Bit-Chess → 권한 → "근처 기기"를 허용하세요.';
+          '아래 버튼을 누르세요. 권한 창이 안 뜨면 설정 화면이 열립니다 → 권한 → "근처 기기" 허용.';
     } else if (!await t.bluetoothOn()) {
       b = '블루투스가 꺼져 있습니다.\n빠른 설정에서 블루투스를 켜세요. 비행기 모드여도 블루투스는 켤 수 있습니다.';
     }
+    if (!mounted) return false;
     setState(() => _blocker = b);
     return b == null;
+  }
+
+  /// 권한 창을 다시 띄우고, Android가 더 이상 안 띄우면(두 번 거부) 설정 화면을 연다.
+  Future<void> _fixPermissions() async {
+    if (!await _check() && !await t.hasPermissions()) await t.openAppSettings();
   }
 
   void _log(String s, [Color c = Colors.white]) => setState(() => _logs.insert(0, _Log(DateTime.now(), s, c)));
@@ -190,7 +204,7 @@ class _BleDebugScreenState extends State<BleDebugScreen> {
               child: Column(
                 children: [
                   Text(_blocker!, style: const TextStyle(fontSize: 16)),
-                  TextButton(onPressed: _check, child: const Text('권한 다시 요청 / 다시 확인')),
+                  FilledButton(onPressed: _fixPermissions, child: const Text('권한 허용하기 / 다시 확인')),
                 ],
               ),
             ),
