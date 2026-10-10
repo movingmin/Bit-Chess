@@ -107,6 +107,11 @@ class BleTransport(private val activity: Activity, messenger: BinaryMessenger) :
                 "bluetoothOn" -> result.success(adapter?.isEnabled == true)
                 "ensurePermissions" -> ensurePermissions(result)
                 "hasPermissions" -> result.success(needed().all { activity.checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED })
+                // 이미 한 번 물어본 뒤에만 의미 있음: 거부 상태인데 "설명 필요"가 false면 Android가 창을 더 안 띄운다.
+                "permanentlyDenied" -> result.success(
+                    needed().any { activity.checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED } &&
+                        needed().none { activity.shouldShowRequestPermissionRationale(it) },
+                )
                 "openAppSettings" -> {
                     activity.startActivity(
                         Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, android.net.Uri.fromParts("package", activity.packageName, null)),

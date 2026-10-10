@@ -64,6 +64,9 @@ abstract class Transport {
 
   /// 앱 설정 화면(권한)을 연다. 두 번 거부하면 Android가 권한 창을 더 띄우지 않으므로 필요하다.
   Future<void> openAppSettings();
+
+  /// 한 번 물어본 뒤 호출: 거부됐고 Android가 권한 창을 더 띄우지 않는 상태인지.
+  Future<bool> permanentlyDenied();
   Future<void> startHost(String roomName);
   Future<void> startScan();
   Future<void> stopScan();
@@ -125,6 +128,9 @@ class AndroidTransport implements Transport {
 
   @override
   Future<bool> hasPermissions() async => await _m.invokeMethod<bool>('hasPermissions') ?? false;
+
+  @override
+  Future<bool> permanentlyDenied() async => await _m.invokeMethod<bool>('permanentlyDenied') ?? false;
 
   @override
   Future<void> openAppSettings() => _m.invokeMethod('openAppSettings');

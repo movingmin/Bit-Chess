@@ -62,6 +62,7 @@ class _BleDebugScreenState extends State<BleDebugScreen> with WidgetsBindingObse
 
   Future<bool> _check({bool ask = true}) async {
     String? b;
+    if (ask) _asked = true;
     if (!await (ask ? t.ensurePermissions() : t.hasPermissions())) {
       b =
           '근처 기기(블루투스) 권한이 필요합니다.\n'
@@ -74,9 +75,15 @@ class _BleDebugScreenState extends State<BleDebugScreen> with WidgetsBindingObse
     return b == null;
   }
 
-  /// 권한 창을 다시 띄우고, Android가 더 이상 안 띄우면(두 번 거부) 설정 화면을 연다.
+  bool _asked = false; // 이 화면에서 권한 창을 한 번이라도 띄웠는지
+
+  /// 권한 창을 다시 띄운다. Android가 더 이상 창을 안 띄우는 상태(두 번 거부)일 때만 설정 화면을 연다.
   Future<void> _fixPermissions() async {
-    if (!await _check() && !await t.hasPermissions()) await t.openAppSettings();
+    if (_asked && await t.permanentlyDenied()) {
+      await t.openAppSettings();
+    } else {
+      await _check();
+    }
   }
 
   void _log(String s, [Color c = Colors.white]) => setState(() => _logs.insert(0, _Log(DateTime.now(), s, c)));
