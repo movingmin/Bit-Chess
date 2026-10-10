@@ -40,3 +40,12 @@
 - GitHub 보안 설정(gh API): Secret scanning·Push protection·Dependabot alerts·security updates·Private vulnerability reporting 켬. main ruleset: 삭제 금지·force push 금지.
 - CI: 첫 push 후 `check` 통과(1m42s).
 - 남은 것: 필수 상태 검사(required check)는 main 직접 push를 막으므로 걸지 않았다. PR 흐름으로 바꿀 때 추가.
+
+### 2026-10-09 22:28 - 1단계: 체스 핵심 (Pass & Play·기보)
+
+- 한 일: 규칙 dartchess, 보드 chessground(둘 다 lichess, GPL-3.0). 홈(혼자 두기·지난 대국·설정, BLE·분석 보드 자리), 대국 화면(시계 무제한/3/5/10/15+10, 뒤집기, 기권, 합의 무승부), 결과 8종, PGN 자동 저장(중단 포함), 다시보기, 공유 시트 내보내기, 강제 종료 복구.
+- 단위 테스트 8개: 메이트·스테일메이트·3회 반복·기물 부족·핀·특수 수 PGN·시계·저장/복구. analyze 깨끗.
+- 폰: 디버그 APK 설치·실행 확인(앱 맨 앞 화면). 화면 동작은 미확인(사용자 검증).
+- 결정: 상태 관리는 Riverpod 대신 Flutter 기본(StatefulWidget). 화면 하나에 상태가 모여 있어 충분하다. BLE 상태가 여러 화면에 걸치면 그때 다시 본다.
+- 한계: 효과음은 시스템 클릭음 하나(이동·잡기·체크·종료 구분 없음). 진동은 잡기·체크·종료에 강하게. 50수·3회 반복은 자동 무승부(Chess.com 방식).
+- 첫 빌드 때 Gradle이 Android SDK Platform 35를 자동 설치했다.
