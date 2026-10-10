@@ -2,7 +2,7 @@
 
 | 단계 | 내용 | 상태 |
 |---|---|---|
-| 0 | 저장소·보안 기반 | 진행 중 (사용자 검증 대기) |
+| 0 | 저장소·보안 기반 | 통과 |
 | 1 | 체스 핵심 (Pass & Play·기보) | 대기 |
 | 2 | BLE 기술 검증 (관문) | 대기 |
 | 3 | 닉네임·방 만들기/찾기·대기실 | 대기 |
@@ -33,3 +33,10 @@
 - 보완 커밋: CI Flutter 3.47.7 고정, `.gitignore`에 `Screenshot_*`와 `!test/**/*.pgn` 추가.
 - 환경: 첫 빌드 때 Gradle이 Android SDK Build-Tools 36.0.0을 자동 설치했다.
 - 미확인: CI 초록색(push 전), GitHub 웹 보안 설정.
+
+### 2026-10-09 21:59 — 0단계: 통과
+
+- 사용자 검증: 통과 — 폰 카운터 앱 동작 확인(사용자). 금지 파일 0, gitleaks 0, main INTERNET 없음, 훅이 가짜 토큰 차단(에이전트 실행).
+- GitHub 보안 설정(gh API): Secret scanning·Push protection·Dependabot alerts·security updates·Private vulnerability reporting 켬. main ruleset: 삭제 금지·force push 금지.
+- CI: 첫 push 후 `check` 통과(1m42s).
+- 남은 것: 필수 상태 검사(required check)는 main 직접 push를 막으므로 걸지 않았다. PR 흐름으로 바꿀 때 추가.
