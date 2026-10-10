@@ -23,3 +23,13 @@
 - 매니페스트: main에 INTERNET 없음. debug/profile에만 있음(Flutter 기본).
 - 새 패키지: 없음(Flutter 기본 템플릿 의존성만).
 - 미확인: CI 초록색(push 전이라 실행 안 됨), GitHub 웹 보안 설정, 훅 차단 시험(사용자 시험 대기).
+
+### 2026-10-09 21:53 — 0단계: 검증 결과 보완
+
+- 훅 차단: 에이전트가 가짜 GitHub PAT로 커밋을 시도해 막히는 것을 확인했다(`github-pat` 규칙). 시험 파일은 커밋하지 않고 지웠다. 사용자 재시험 대기.
+- 폰: 디버그 APK 빌드·설치 성공, Flutter 엔진 시작 로그 확인. 화면 표시는 미확인(사용자 검증).
+- `flutter analyze`: No issues found. `flutter test`: All tests passed(1개).
+- `secret-check.ps1`: 금지 파일 0, gitleaks staged·전체 히스토리 0, 커밋 이메일 noreply, 개인 경로 없음, main INTERNET 없음.
+- 보완 커밋: CI Flutter 3.47.7 고정, `.gitignore`에 `Screenshot_*`와 `!test/**/*.pgn` 추가.
+- 환경: 첫 빌드 때 Gradle이 Android SDK Build-Tools 36.0.0을 자동 설치했다.
+- 미확인: CI 초록색(push 전), GitHub 웹 보안 설정.
